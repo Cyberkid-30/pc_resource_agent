@@ -1,5 +1,3 @@
-# history.py
-
 import time
 from collections import defaultdict
 

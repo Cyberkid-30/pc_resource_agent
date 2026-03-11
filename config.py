@@ -1,5 +1,3 @@
-# config.py
-
 # Monitoring interval (seconds)
 MONITOR_INTERVAL = 5
 

@@ -25,7 +25,7 @@ pip install -r requirements.txt
 Run the following command:
 
 ```bash
-python agent.py
+python main.py
 ```
 
 The agent will begin monitoring system processes every few seconds.

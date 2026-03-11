@@ -1,5 +1,3 @@
-# monitor.py
-
 import psutil
 
 
