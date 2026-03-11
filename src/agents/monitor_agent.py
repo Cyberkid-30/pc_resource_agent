@@ -22,9 +22,22 @@ class MonitorBehaviour(PeriodicBehaviour):
 
     async def run(self):
 
-        logger.log_event("Scanning system processes...")
+        system_cpu = monitor.get_system_cpu()
+        goal = config.SYSTEM_CPU_GOAL
+        goal_met = system_cpu < goal
+
+        if goal_met:
+            logger.log_event(f"System CPU at {system_cpu}% — goal (<{goal}%) met.")
+        else:
+            logger.log_warning(
+                f"System CPU at {system_cpu}% — EXCEEDS goal (<{goal}%). "
+                "Scanning for offending processes..."
+            )
 
         processes = monitor.get_processes()
+
+        # Sort by CPU descending so we target the biggest offenders first
+        processes.sort(key=lambda p: p["cpu"], reverse=True)
 
         for process in processes:
             pid = process["pid"]
@@ -39,11 +52,45 @@ class MonitorBehaviour(PeriodicBehaviour):
             # Record this reading for history tracking
             process_history.record(pid, cpu, memory)
 
-            # ---- DECISION LOGIC ----
+            # ---- GOAL-DRIVEN DECISION LOGIC ----
 
             terminated = False
 
-            if cpu > config.CPU_CRITICAL_THRESHOLD:
+            # When the system goal is NOT met, aggressively target
+            # the highest CPU consumers with sustained usage
+            if not goal_met and cpu > config.CPU_WARNING_THRESHOLD:
+                duration = process_history.get_violation_duration(
+                    pid, "cpu", config.CPU_WARNING_THRESHOLD
+                )
+
+                if process_history.is_sustained_cpu(pid):
+                    alert_msg = (
+                        f"GOAL VIOLATION: System CPU {system_cpu}% (goal <{goal}%). "
+                        f"Terminating {name} (PID {pid}) at {cpu}% "
+                        f"for {duration:.0f}s"
+                    )
+                    logger.log_critical(alert_msg)
+                    await self.send_alert(alert_msg, level="critical")
+
+                    success = monitor.terminate_process(pid)
+
+                    if success:
+                        logger.log_event(
+                            f"Process {name} terminated to restore system goal."
+                        )
+                        process_history.remove(pid)
+                        terminated = True
+                    else:
+                        logger.log_warning(f"Failed to terminate {name}")
+                else:
+                    logger.log_warning(
+                        f"{name} (PID {pid}) CPU at {cpu}% "
+                        f"for {duration:.0f}s — monitoring "
+                        f"(system goal breached, threshold: {config.SUSTAINED_DURATION}s)"
+                    )
+
+            # Per-process critical threshold (applies even when goal IS met)
+            elif cpu > config.CPU_CRITICAL_THRESHOLD:
                 duration = process_history.get_violation_duration(
                     pid, "cpu", config.CPU_CRITICAL_THRESHOLD
                 )
@@ -73,6 +120,7 @@ class MonitorBehaviour(PeriodicBehaviour):
             elif cpu > config.CPU_WARNING_THRESHOLD:
                 logger.log_warning(f"WARNING: {name} CPU usage high ({cpu}%)")
 
+            # Memory check (independent, avoids double-termination)
             if not terminated and memory > config.MEMORY_CRITICAL_THRESHOLD:
                 duration = process_history.get_violation_duration(
                     pid, "memory", config.MEMORY_CRITICAL_THRESHOLD
@@ -105,7 +153,10 @@ class MonitorBehaviour(PeriodicBehaviour):
 class ResourceManagementAgent(Agent):
     async def setup(self):
 
-        logger.log_event("Resource Management Agent started.")
+        logger.log_event(
+            f"Resource Management Agent started. "
+            f"Goal: maintain system CPU below {config.SYSTEM_CPU_GOAL}%."
+        )
 
         monitor_behaviour = MonitorBehaviour(period=config.MONITOR_INTERVAL)
 

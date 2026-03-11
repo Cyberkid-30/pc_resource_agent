@@ -8,6 +8,11 @@ for _proc in psutil.process_iter(["cpu_percent"]):
     pass
 
 
+def get_system_cpu():
+    """Return overall system CPU usage as a percentage."""
+    return psutil.cpu_percent()
+
+
 def get_processes():
 
     processes = []

@@ -1,7 +1,11 @@
+# ---- AGENT GOAL ----
+# The agent's primary objective: keep overall system CPU below this target
+SYSTEM_CPU_GOAL = 75  # percentage
+
 # Monitoring interval (seconds)
 MONITOR_INTERVAL = 5
 
-# CPU thresholds
+# CPU thresholds (per-process)
 CPU_WARNING_THRESHOLD = 50
 CPU_CRITICAL_THRESHOLD = 80
 
