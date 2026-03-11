@@ -3,6 +3,13 @@
 import psutil
 
 
+# First call to cpu_percent() always returns 0.0 — we need to prime it.
+# By calling process_iter once at import time, subsequent calls within
+# MONITOR_INTERVAL will return meaningful delta-based CPU readings.
+for _proc in psutil.process_iter(["cpu_percent"]):
+    pass
+
+
 def get_processes():
 
     processes = []
