@@ -11,15 +11,15 @@ dotenv.load_dotenv()
 
 
 async def main():
-    JID = os.getenv("JID")
-    PASSWORD = os.getenv("PASSWORD")
+    MONITOR_JID = os.getenv("MONITOR_JID")
+    MONITOR_PASSWORD = os.getenv("MONITOR_PASSWORD")
     ALERT_JID = os.getenv("ALERT_JID")
     ALERT_PASSWORD = os.getenv("ALERT_PASSWORD")
 
     alert_agent = AlertAgent(ALERT_JID, ALERT_PASSWORD)  # type: ignore
     await alert_agent.start()
 
-    monitor_agent = ResourceManagementAgent(JID, PASSWORD)  # type: ignore
+    monitor_agent = ResourceManagementAgent(MONITOR_JID, MONITOR_PASSWORD)  # type: ignore
     await monitor_agent.start()
 
     logger.log_event("Agents running. Press CTRL+C to stop.")
