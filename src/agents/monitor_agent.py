@@ -5,10 +5,8 @@ from spade.agent import Agent
 from spade.behaviour import PeriodicBehaviour
 from spade.message import Message
 
-import config
-import logger
-import monitor
-from history import ProcessHistory
+from src.core import config, logger, monitor
+from src.core.history import ProcessHistory
 
 dotenv.load_dotenv()
 process_history = ProcessHistory()

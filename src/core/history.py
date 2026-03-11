@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 
-import config
+from src.core import config
 
 
 class ProcessHistory:

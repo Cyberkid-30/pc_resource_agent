@@ -2,7 +2,7 @@ from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour
 from plyer import notification
 
-import logger
+from src.core import logger
 
 
 class AlertBehaviour(CyclicBehaviour):

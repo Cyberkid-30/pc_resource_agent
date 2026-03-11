@@ -3,9 +3,9 @@ import os
 
 import dotenv
 
-import logger
-from alert_agent import AlertAgent
-from monitor_agent import ResourceManagementAgent
+from src.core import logger
+from src.agents.alert_agent import AlertAgent
+from src.agents.monitor_agent import ResourceManagementAgent
 
 dotenv.load_dotenv()
 

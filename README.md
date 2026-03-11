@@ -1,15 +1,40 @@
 # Autonomous PC Resource Management Agent
 
-This project implements an intelligent agent that monitors system processes and automatically manages applications that consume excessive CPU or memory.
+This project implements an intelligent multi-agent system that monitors system processes and automatically manages applications consuming excessive CPU or memory resources.
 
-The system was developed using the [SPADE](https://spade-mas.readthedocs.io/) agent framework and the [psutil](https://psutil.readthedocs.io/) library for system monitoring.
+Built with the [SPADE](https://spade-mas.readthedocs.io/) multi-agent framework, [psutil](https://psutil.readthedocs.io/) for system monitoring, and [plyer](https://plyer.readthedocs.io/) for desktop notifications.
 
 ## Features
 
-- Continuous monitoring of system processes
-- Detection of high CPU or memory usage
-- Automatic termination of problematic processes
-- Logging of agent actions and events
+- Continuous periodic monitoring of all system processes
+- Time-based decision making with process history tracking
+- Automatic termination of processes with sustained high resource usage
+- Multi-agent architecture with XMPP message passing
+- Windows desktop toast notifications for critical events
+- Color-coded console logging and persistent file logging
+- Configurable thresholds, intervals, and critical process whitelist
+
+## Project Structure
+
+```
+pc_resource_agent/
+├── src/
+│   ├── agents/
+│   │   ├── monitor_agent.py   # Resource monitoring agent
+│   │   └── alert_agent.py     # Desktop notification agent
+│   └── core/
+│       ├── monitor.py         # psutil process enumeration & termination
+│       ├── history.py         # Per-process time-series tracking
+│       ├── config.py          # Thresholds, intervals, whitelist
+│       └── logger.py          # Dual-output color-coded logging
+├── demo/
+│   ├── stress_cpu.py          # CPU stress test for demos
+│   └── stress_memory.py       # Memory stress test for demos
+├── main.py                    # Entry point
+├── requirements.txt
+├── .env                       # XMPP credentials (not committed)
+└── README.md
+```
 
 ## Installation
 
@@ -20,9 +45,16 @@ The system was developed using the [SPADE](https://spade-mas.readthedocs.io/) ag
 pip install -r requirements.txt
 ```
 
-## Running the Agent
+3. Create a `.env` file with your XMPP credentials:
 
-Run the following command:
+```env
+JID=your_monitor_agent@xmpp.jp
+PASSWORD=your_password
+ALERT_JID=your_alert_agent@xmpp.jp
+ALERT_PASSWORD=your_alert_password
+```
+
+## Running the Agent
 
 ```bash
 python main.py
